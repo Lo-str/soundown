@@ -1,0 +1,289 @@
+// =============================================================================
+// DATASOURCE & GENERATOR
+// =============================================================================
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum ReleaseStatus {
+  DRAFT
+  PUBLISHED
+  UNLISTED
+}
+
+enum AlbumType {
+  LP
+  EP
+  SINGLE
+  COMPILATION
+}
+
+enum AudioFormat {
+  MP3
+  FLAC
+  WAV
+  AAC
+}
+
+enum PurchaseItemType {
+  TRACK
+  ALBUM
+}
+
+// =============================================================================
+// USER & PROFILES
+// =============================================================================
+
+model User {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email        String @unique
+  passwordHash String
+
+  artistProfile   ArtistProfile?
+  listenerProfile ListenerProfile?
+}
+
+model ArtistProfile {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  displayName String
+  bio         String
+  avatarUrl   String?
+  location    String?
+  website     String?
+
+  // Stripe Connect account id for payouts
+  stripeAccountId String?
+
+  tracks Track[]
+  albums Album[]
+  events Event[]
+}
+
+model ListenerProfile {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  purchases    Purchase[]
+  libraryItems LibraryItem[]
+  comments     Comment[]
+}
+
+// =============================================================================
+// MUSIC — TRACKS
+// =============================================================================
+
+model Track {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title       String
+  description String
+  releaseDate DateTime?
+  status      ReleaseStatus @default(DRAFT)
+  artworkUrl  String?
+  price       Decimal
+
+  // Relationships — artist
+  artistProfileId String
+  artistProfile   ArtistProfile @relation(fields: [artistProfileId], references: [id])
+
+  // Relationships — album (optional, null = standalone single)
+  albumId     String?
+  album       Album?  @relation(fields: [albumId], references: [id])
+  trackNumber Int?
+
+  // Relationships — content
+  files         TrackFile[]
+  audioFeatures AudioFeatures?
+  genres        Genre[]
+
+  // Relationships — community & store
+  comments     Comment[]
+  purchases    Purchase[]
+  libraryItems LibraryItem[]
+}
+
+model TrackFile {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  trackId String
+  track   Track  @relation(fields: [trackId], references: [id])
+
+  format    AudioFormat
+  quality   String // e.g. "320kbps", "lossless"
+  url       String // location in object storage
+  sizeBytes Int
+}
+
+model AudioFeatures {
+  id         String   @id @default(uuid())
+  analyzedAt DateTime
+
+  trackId String @unique
+  track   Track  @relation(fields: [trackId], references: [id])
+
+  tempo            Float
+  key              Int
+  mode             Int // 0 = minor, 1 = major
+  energy           Float
+  spectralCentroid Float
+  qdrantVectorId   String // reference to vector stored in Qdrant
+}
+
+// =============================================================================
+// MUSIC — ALBUMS
+// =============================================================================
+
+model Album {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title       String
+  description String
+  albumType   AlbumType
+  releaseDate DateTime?
+  status      ReleaseStatus @default(DRAFT)
+  artworkUrl  String?
+  price       Decimal
+
+  // Relationships — artist
+  artistProfileId String
+  artistProfile   ArtistProfile @relation(fields: [artistProfileId], references: [id])
+
+  // Relationships — content
+  tracks Track[]
+  genres Genre[]
+
+  // Relationships — community & store
+  comments     Comment[]
+  purchases    Purchase[]
+  libraryItems LibraryItem[]
+}
+
+// =============================================================================
+// MUSIC — GENRES
+// =============================================================================
+
+model Genre {
+  id   String @id @default(uuid())
+  name String @unique
+  slug String @unique
+
+  tracks Track[]
+  albums Album[]
+}
+
+// =============================================================================
+// STORE & LIBRARY
+// =============================================================================
+
+model Purchase {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  listenerProfileId String
+  listenerProfile   ListenerProfile @relation(fields: [listenerProfileId], references: [id])
+
+  // What was bought — one of these will be set, the other null
+  itemType PurchaseItemType
+  trackId  String?
+  track    Track?           @relation(fields: [trackId], references: [id])
+  albumId  String?
+  album    Album?           @relation(fields: [albumId], references: [id])
+
+  // Financials — all stored as snapshot at time of purchase
+  totalPaid        Decimal
+  artistReceives   Decimal // 90%
+  platformReceives Decimal // 10%
+
+  // Charity contribution (optional)
+  charityAmount       Decimal?
+  charityOrganisation String?
+
+  // What format they downloaded
+  downloadFormat AudioFormat?
+
+  libraryItems LibraryItem[]
+}
+
+model LibraryItem {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  listenerProfileId String
+  listenerProfile   ListenerProfile @relation(fields: [listenerProfileId], references: [id])
+
+  // Access can come from a purchase or be granted freely
+  purchaseId String?
+  purchase   Purchase? @relation(fields: [purchaseId], references: [id])
+
+  // What they have access to — one of these will be set
+  trackId String?
+  track   Track?  @relation(fields: [trackId], references: [id])
+  albumId String?
+  album   Album?  @relation(fields: [albumId], references: [id])
+}
+
+// =============================================================================
+// COMMUNITY
+// =============================================================================
+
+model Comment {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  body String
+
+  listenerProfileId String
+  listenerProfile   ListenerProfile @relation(fields: [listenerProfileId], references: [id])
+
+  // Target — one of these will be set, the other null
+  trackId String?
+  track   Track?  @relation(fields: [trackId], references: [id])
+  albumId String?
+  album   Album?  @relation(fields: [albumId], references: [id])
+}
+
+model Event {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title       String
+  description String
+  venue       String
+  city        String
+  country     String
+  date        DateTime
+  ticketUrl   String?
+
+  artistProfileId String
+  artistProfile   ArtistProfile @relation(fields: [artistProfileId], references: [id])
+}

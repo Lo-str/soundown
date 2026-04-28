@@ -1,0 +1,36 @@
+{
+  "name": "soundown",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "lint": "eslint src",
+    "frontend:dev": "vite frontend",
+    "frontend:build": "vite build frontend",
+    "frontend:lint": "eslint frontend/src --ext .js,.jsx",
+    "frontend:preview": "vite preview --host"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.4.0",
+    "@prisma/client": "^6.19.3",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.6.0",
+    "prettier": "^3.8.3",
+    "prisma": "^6.19.3",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

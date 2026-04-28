@@ -1,0 +1,121 @@
+/* ===============================
+   HEADERS
+   =============================== */
+h1 {
+  color: #5cffb3;
+}
+
+h2 {
+  color: #96cdb0;
+}
+
+h3 {
+  color: #c18d52;
+}
+
+/* ===============================
+   CODE
+   =============================== */
+code {
+  background: #121417;
+  color: #ffd76a;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+pre {
+  background: linear-gradient(135deg, #14161a, #0e1013);
+  border: 1px solid #ffd45dc5;
+  border-radius: 14px;
+  padding: 16px;
+  overflow: auto;
+}
+
+pre code {
+  background: transparent;
+  color: #e6edf3;
+  padding: 0;
+}
+
+/* ===============================
+   DIVIDERS
+   =============================== */
+hr {
+  border: none;
+  border-top: 1px solid #2a3a35;
+  margin: 32px 0;
+  opacity: 0.6;
+}
+
+/* ===============================
+   CALLOUTS
+   =============================== */
+blockquote,
+.markdown-alert {
+  background: linear-gradient(135deg, #203b37, #081b1b);
+  border-left: 6px solid #5a8f76;
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin: 26px 0;
+  color: #eee8b2;
+}
+
+blockquote p,
+.markdown-alert p {
+  margin: 0;
+}
+
+.markdown-alert> :first-child {
+  margin-top: 0;
+}
+
+.markdown-alert> :last-child {
+  margin-bottom: 0;
+}
+
+/* Alert title row */
+.markdown-alert .markdown-alert-title {
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+/* ===============================
+   ALERT TYPES
+   =============================== */
+.markdown-alert.markdown-alert-tip {
+  border-left-color: #96cdb0;
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  background: #96cdb0;
+  color: #081b1b;
+}
+
+.markdown-alert.markdown-alert-warning,
+.markdown-alert.markdown-alert-caution {
+  border-left-color: #c18d52;
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title,
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  background: #c18d52;
+  color: #081b1b;
+}
+
+.markdown-alert.markdown-alert-note,
+.markdown-alert.markdown-alert-important {
+  border-left-color: #eee8b2;
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title,
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  background: #d2e685;
+  color: #073062;
+}
