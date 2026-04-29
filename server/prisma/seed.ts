@@ -1,4 +1,10 @@
-import { PrismaClient, AudioFormat, AlbumType, ReleaseStatus, PurchaseItemType } from "@prisma/client";
+import {
+  PrismaClient,
+  AudioFormat,
+  AlbumType,
+  ReleaseStatus,
+  PurchaseItemType,
+} from "@prisma/client";
 import { faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
@@ -7,16 +13,27 @@ const prisma = new PrismaClient();
 // HELPERS
 // =============================================================================
 
-const randomPrice = () =>
-  parseFloat((Math.random() * 10 + 1).toFixed(2));
+const randomPrice = () => parseFloat((Math.random() * 10 + 1).toFixed(2));
 
 const randomAudioFormat = () =>
   faker.helpers.arrayElement(Object.values(AudioFormat));
 
 const randomGenreNames = [
-  "Ambient", "Post-Rock", "Jazz", "Folk", "Electronic",
-  "Classical", "Hip-Hop", "Soul", "Indie", "Experimental",
-  "Metal", "Blues", "R&B", "Punk", "Shoegaze",
+  "Ambient",
+  "Post-Rock",
+  "Jazz",
+  "Folk",
+  "Electronic",
+  "Classical",
+  "Hip-Hop",
+  "Soul",
+  "Indie",
+  "Experimental",
+  "Metal",
+  "Blues",
+  "R&B",
+  "Punk",
+  "Shoegaze",
 ];
 
 // =============================================================================
@@ -41,8 +58,8 @@ async function main() {
           name,
           slug: name.toLowerCase(),
         },
-      })
-    )
+      }),
+    ),
   );
 
   // ---------------------------------------------------------------------------
@@ -76,7 +93,7 @@ async function main() {
         },
       });
       return user;
-    })
+    }),
   );
 
   // ---------------------------------------------------------------------------
@@ -99,7 +116,7 @@ async function main() {
           albumType: faker.helpers.arrayElement(Object.values(AlbumType)),
           releaseDate: faker.date.past({ years: 3 }),
           status: ReleaseStatus.PUBLISHED,
-          artworkUrl: faker.image.urlLoremFlickr({ category: "abstract" }),
+          artworkUrl: faker.image.url(),
           price: randomPrice(),
           artistProfileId: artistProfile.id,
           genres: {
@@ -118,7 +135,7 @@ async function main() {
             description: faker.lorem.paragraph(2),
             releaseDate: faker.date.past({ years: 3 }),
             status: ReleaseStatus.PUBLISHED,
-            artworkUrl: faker.image.urlLoremFlickr({ category: "abstract" }),
+            artworkUrl: faker.image.url(),
             price: randomPrice(),
             trackNumber: t + 1,
             artistProfileId: artistProfile.id,
@@ -132,24 +149,42 @@ async function main() {
                   format: AudioFormat.MP3,
                   quality: "320kbps",
                   url: faker.internet.url(),
-                  sizeBytes: faker.number.int({ min: 5_000_000, max: 15_000_000 }),
+                  sizeBytes: faker.number.int({
+                    min: 5_000_000,
+                    max: 15_000_000,
+                  }),
                 },
                 {
                   format: AudioFormat.FLAC,
                   quality: "lossless",
                   url: faker.internet.url(),
-                  sizeBytes: faker.number.int({ min: 20_000_000, max: 50_000_000 }),
+                  sizeBytes: faker.number.int({
+                    min: 20_000_000,
+                    max: 50_000_000,
+                  }),
                 },
               ],
             },
             audioFeatures: {
               create: {
                 analyzedAt: new Date(),
-                tempo: faker.number.float({ min: 60, max: 180, fractionDigits: 2 }),
+                tempo: faker.number.float({
+                  min: 60,
+                  max: 180,
+                  fractionDigits: 2,
+                }),
                 key: faker.number.int({ min: 0, max: 11 }),
                 mode: faker.helpers.arrayElement([0, 1]),
-                energy: faker.number.float({ min: 0, max: 1, fractionDigits: 3 }),
-                spectralCentroid: faker.number.float({ min: 500, max: 8000, fractionDigits: 2 }),
+                energy: faker.number.float({
+                  min: 0,
+                  max: 1,
+                  fractionDigits: 3,
+                }),
+                spectralCentroid: faker.number.float({
+                  min: 500,
+                  max: 8000,
+                  fractionDigits: 2,
+                }),
                 qdrantVectorId: faker.string.uuid(),
               },
             },
@@ -167,11 +202,13 @@ async function main() {
         description: faker.lorem.paragraph(2),
         releaseDate: faker.date.past({ years: 1 }),
         status: ReleaseStatus.PUBLISHED,
-        artworkUrl: faker.image.urlLoremFlickr({ category: "abstract" }),
+        artworkUrl: faker.image.url(),
         price: randomPrice(),
         artistProfileId: artistProfile.id,
         genres: {
-          connect: [faker.helpers.arrayElement(genres)].map((g) => ({ id: g.id })),
+          connect: [faker.helpers.arrayElement(genres)].map((g) => ({
+            id: g.id,
+          })),
         },
         files: {
           create: {
@@ -188,7 +225,11 @@ async function main() {
             key: faker.number.int({ min: 0, max: 11 }),
             mode: faker.helpers.arrayElement([0, 1]),
             energy: faker.number.float({ min: 0, max: 1, fractionDigits: 3 }),
-            spectralCentroid: faker.number.float({ min: 500, max: 8000, fractionDigits: 2 }),
+            spectralCentroid: faker.number.float({
+              min: 500,
+              max: 8000,
+              fractionDigits: 2,
+            }),
             qdrantVectorId: faker.string.uuid(),
           },
         },
@@ -215,8 +256,8 @@ async function main() {
           },
         },
         include: { listenerProfile: true },
-      })
-    )
+      }),
+    ),
   );
 
   // ---------------------------------------------------------------------------
@@ -248,8 +289,16 @@ async function main() {
           totalPaid,
           artistReceives,
           platformReceives,
-          charityAmount: addCharity ? parseFloat((totalPaid * 0.05).toFixed(2)) : null,
-          charityOrganisation: addCharity ? faker.helpers.arrayElement(["Music Declares Emergency", "Sweet Relief", "MusiCares"]) : null,
+          charityAmount: addCharity
+            ? parseFloat((totalPaid * 0.05).toFixed(2))
+            : null,
+          charityOrganisation: addCharity
+            ? faker.helpers.arrayElement([
+                "Music Declares Emergency",
+                "Sweet Relief",
+                "MusiCares",
+              ])
+            : null,
           downloadFormat: randomAudioFormat(),
         },
       });
@@ -294,7 +343,9 @@ async function main() {
 
   console.log("  Creating comments...");
 
-  const allListenerProfiles = await prisma.listenerProfile.findMany({ take: 5 });
+  const allListenerProfiles = await prisma.listenerProfile.findMany({
+    take: 5,
+  });
   const commentTracks = await prisma.track.findMany({ take: 5 });
 
   for (const track of commentTracks) {
